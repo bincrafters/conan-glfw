@@ -1,0 +1,18 @@
+#Backup files
+*\~
+*swp
+
+#OSX
+Thumbs.db
+.DS_Store
+
+#Emacs buffers
+\#*\#
+\.#*
+
+#Conan
+conanbuildinfo.cmake
+conanbuildinfo.txt
+conaninfo.txt
+*.pyc
+/build
