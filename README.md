@@ -1,6 +1,6 @@
 [ ![Download](https://api.bintray.com/packages/bincrafters/public-conan/glfw%3Abincrafters/images/download.svg) ](https://bintray.com/bincrafters/public-conan/glfw%3Abincrafters/_latestVersion)
 [![Build Status](https://travis-ci.org/bincrafters/conan-glfw.svg?branch=stable%2F3.2.1)](https://travis-ci.org/bincrafters/conan-glfw)
-[![Build status](https://ci.appveyor.com/api/projects/status/sxs9n6vb8nqa92l5?svg=true)](https://ci.appveyor.com/project/BinCrafters/conan-glfw)
+[![Build status](https://ci.appveyor.com/api/projects/status/8d1mon7v51qa2jaw?svg=true)](https://ci.appveyor.com/project/BinCrafters/conan-glfw)
 
 [Conan.io](https://conan.io) package for [glfw](https://github.com/glfw/glfw) project
 
