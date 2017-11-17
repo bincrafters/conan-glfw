@@ -56,7 +56,6 @@ class GlfwConan(ConanFile):
                 installer.install("%s%s" % ("libXinerama-devel", arch_suffix))
                 installer.install("%s%s" % ("libXcursor-devel", arch_suffix))
                 installer.install("%s%s" % ("libXi-devel", arch_suffix))
-                
             else:
                 self.output.warn("Could not determine package manager, skipping Linux system requirements installation.")
    
