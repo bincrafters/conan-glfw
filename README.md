@@ -28,6 +28,12 @@ Complete the installation of requirements for your project running:
 
 Note: It is recommended that you run conan install from a build directory and not the root of the project directory.  This is because conan generates *conanbuildinfo* files specific to a single build configuration which by default comes from an autodetected default profile located in ~/.conan/profiles/default .  If you pass different build configuration options to conan install, it will generate different *conanbuildinfo* files.  Thus, they should not be added to the root of the project, nor committed to git.
 
+If you are going to be using the Vulkan API, you have to have a Vulkan SDK installed, e.g. by setting up the [LunarG Vulkan SDK](https://www.lunarg.com/vulkan-sdk/). You also need to make sure that conan compiles glfw locally so that Vulkan can be detected, which would mean that `conan install` has to be executed with the `--build glfw` flag in the abovementioned commands:
+
+    $ mkdir build && cd build && conan install .. --build glfw
+	
+Specifically when using the LunarG Vulkan SDK on Windows, if the build procedure cannot detect Vulkan, just copy all the .lib files from the Vulkan SDK `Lib` directory to the Vulkan SDK `Bin` directory and from the `Lib32` directory to the `Bin32` directory. This is an ugly hack but it is needed to accommodate the FindVulkan cmake module that comes with GLFW v3.2.1, which is not perfect. This problem has been corrected in the glfw trunk and it won't be an issue when the next version gets released.
+
 ## For Packagers: Publish this Package
 
 The example below shows the commands used to publish to bincrafters conan repository. To publish to your own conan respository (for example, after forking this git repository), you will need to change the commands below accordingly.
