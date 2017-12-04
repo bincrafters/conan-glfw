@@ -1,6 +1,8 @@
 from conans import ConanFile, CMake, tools
 from conans.tools import download, unzip, os_info, SystemPackageTool
 import os
+import glob
+
 
 class GlfwConan(ConanFile):
     name = "glfw"
@@ -11,8 +13,8 @@ class GlfwConan(ConanFile):
     settings = "os", "arch", "build_type", "compiler"
     options = {"shared": [True, False]}
     default_options = "shared=False"
-    url="https://github.com/bincrafters/conan-glfw"
-    license="https://github.com/glfw/glfw/blob/master/LICENSE.md"
+    url = "https://github.com/bincrafters/conan-glfw"
+    license = "https://github.com/glfw/glfw/blob/master/LICENSE.md"
     exports = "FindGLFW.cmake"
     exports_sources = "CMakeLists.txt"
 
@@ -78,7 +80,9 @@ class GlfwConan(ConanFile):
         cmake.build()
 
         if self.settings.os == "Macos" and self.options.shared:
-            self.run('cd sources/src && for filename in *.dylib; do install_name_tool -id $filename $filename; done')
+            with tools.chdir(os.path.join('sources', 'src')):
+                for filename in glob.glob('*.dylib'):
+                    self.run('install_name_tool -id {filename} {filename}'.format(filename=filename))
 
     def package(self):
         self.copy("FindGLFW.cmake", ".", ".")
