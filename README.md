@@ -32,7 +32,15 @@ If you are going to be using the Vulkan API, you have to have a Vulkan SDK insta
 
     $ mkdir build && cd build && conan install .. --build glfw
 	
-Specifically when using the LunarG Vulkan SDK on Windows, if the build procedure cannot detect Vulkan, just copy all the .lib files from the Vulkan SDK `Lib` directory to the Vulkan SDK `Bin` directory and from the `Lib32` directory to the `Bin32` directory. This is an ugly hack but it is needed to accommodate the FindVulkan cmake module that comes with glfw v3.2.1, which is not perfect. This problem has been corrected in the glfw trunk and it won't be an issue when the next version gets released.
+If you are using CMake, you still have to call `find_package(Vulkan REQUIRED)`, include the `${Vulkan_INCLUDE_DIR}` directory and link to `${Vulkan_LIBRARY}` in your CMakeLists. 
+	
+Specifically when using the LunarG Vulkan SDK on Windows, if the build procedure cannot detect Vulkan or if there are linking errors, just do the following:
+
+**For 32-bit builds:** Copy all the .lib files from the Vulkan SDK `Lib32` directory to the Vulkan SDK `Bin32` directory.
+
+**For 64-bit builds:** Copy all the .lib files from the Vulkan SDK `Lib` directory to the Vulkan SDK `Bin` directory. Rename the Vulkan SDK `Bin32` directory to `Bin32_` and the `Bin` directory to `Bin32`. 
+
+This is an ugly hack but it is needed to accommodate the FindVulkan cmake module that comes with glfw v3.2.1, which is not perfect. This problem has been corrected in the glfw trunk and it won't be an issue when the next version gets released.
 
 ## For Packagers: Publish this Package
 
