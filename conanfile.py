@@ -28,7 +28,7 @@ class GlfwConan(ConanFile):
                 else:
                     arch_suffix = ''
                 installer.install("%s%s" % ("libglu1-mesa-dev", arch_suffix))
-                installer.install("xorg-dev")
+#                installer.install("xorg-dev")
                 installer.install("%s%s" % ("libx11-dev", arch_suffix))
                 installer.install("%s%s" % ("libxrandr-dev", arch_suffix))
                 installer.install("%s%s" % ("libxinerama-dev", arch_suffix))
