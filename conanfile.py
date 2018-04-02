@@ -6,7 +6,7 @@ import glob
 
 class GlfwConan(ConanFile):
     name = "glfw"
-    version = "master"
+    version = "3.2.1.20180327"
     description = "The GLFW library - Builds on Windows, Linux and Macos/OSX"
     sources_folder = "sources"
     generators = "cmake"
@@ -65,10 +65,10 @@ class GlfwConan(ConanFile):
         del self.settings.compiler.libcxx
 
     def source(self):
-        download("https://github.com/glfw/glfw/archive/%s.zip" % self.version, "%s.zip" % self.sources_folder)
+        download("https://github.com/glfw/glfw/archive/0a3c4f5d80b041ee1a12c8da3503653d98bd1a15.zip", "%s.zip" % self.sources_folder)
         unzip("%s.zip" % self.sources_folder)
         os.unlink("%s.zip" % self.sources_folder)
-        os.rename("%s-%s" % (self.name, self.version), self.sources_folder)
+        os.rename("glfw-0a3c4f5d80b041ee1a12c8da3503653d98bd1a15", self.sources_folder)
 
     def build(self):
         cmake = CMake(self)
