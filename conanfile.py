@@ -7,6 +7,7 @@ import glob
 class GlfwConan(ConanFile):
     name = "glfw"
     version = "3.2.1.20180327"
+    revision = "0a3c4f5d80b041ee1a12c8da3503653d98bd1a15"
     description = "The GLFW library - Builds on Windows, Linux and Macos/OSX"
     sources_folder = "sources"
     generators = "cmake"
@@ -27,6 +28,7 @@ class GlfwConan(ConanFile):
                     installer.install("g++-multilib")
                 else:
                     arch_suffix = ''
+                installer.install("%s%s" % ("mesa-common-dev", arch_suffix))
                 installer.install("%s%s" % ("libglu1-mesa-dev", arch_suffix))
                 installer.install("xorg-dev")
                 installer.install("%s%s" % ("libx11-dev", arch_suffix))
@@ -65,10 +67,10 @@ class GlfwConan(ConanFile):
         del self.settings.compiler.libcxx
 
     def source(self):
-        download("https://github.com/glfw/glfw/archive/0a3c4f5d80b041ee1a12c8da3503653d98bd1a15.zip", "%s.zip" % self.sources_folder)
+        download("https://github.com/glfw/glfw/archive/%s.zip" % self.revision, "%s.zip" % self.sources_folder)
         unzip("%s.zip" % self.sources_folder)
         os.unlink("%s.zip" % self.sources_folder)
-        os.rename("glfw-0a3c4f5d80b041ee1a12c8da3503653d98bd1a15", self.sources_folder)
+        os.rename("glfw-%s" % self.revision, self.sources_folder)
 
     def build(self):
         cmake = CMake(self)
