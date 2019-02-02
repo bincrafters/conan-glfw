@@ -58,9 +58,26 @@ class GlfwConan(ConanFile):
                 installer.install("%s%s" % ("libXinerama-devel", arch_suffix))
                 installer.install("%s%s" % ("libXcursor-devel", arch_suffix))
                 installer.install("%s%s" % ("libXi-devel", arch_suffix))
+            elif os_info.with_pacman:
+                if self.settings.arch == "x86" and tools.detected_architecture() == "x86_64":
+                    # Note: The packages with the "lib32-" prefix will only be
+                    # available if the user has activate Arch's multilib
+                    # repository, See
+                    # https://wiki.archlinux.org/index.php/official_repositories#multilib
+                    arch_suffix = 'lib32-'
+                else:
+                    arch_suffix = ''
+                installer = SystemPackageTool()
+                installer.install("%s%s" % (arch_suffix, "libx11"))
+                installer.install("%s%s" % (arch_suffix, "libxrandr"))
+                installer.install("%s%s" % (arch_suffix, "libxinerama"))
+                installer.install("%s%s" % (arch_suffix, "libxcursor"))
+                installer.install("%s%s" % (arch_suffix, "libxi"))
+                installer.install("%s%s" % (arch_suffix, "libglvnd"))
+
             else:
                 self.output.warn("Could not determine package manager, skipping Linux system requirements installation.")
-   
+
     def configure(self):
         del self.settings.compiler.libcxx
 
@@ -87,7 +104,7 @@ class GlfwConan(ConanFile):
     def package(self):
         self.copy("FindGLFW.cmake", ".", ".")
         self.copy("%s/copying*" % self.sources_folder, dst="licenses",  ignore_case=True, keep_path=False)
-        
+
         self.copy(pattern="*.h", dst="include", src="%s/include" % self.sources_folder, keep_path=True)
 
         if self.settings.compiler == "Visual Studio":
