@@ -63,7 +63,7 @@ class GlfwConan(ConanFile):
                 installer.install("%s%s" % ("libXinerama-devel", arch_suffix))
                 installer.install("%s%s" % ("libXcursor-devel", arch_suffix))
                 installer.install("%s%s" % ("libXi-devel", arch_suffix))
-            elif os_info.with_pacman:
+            elif tools.os_info.with_pacman:
                 if self.settings.arch == "x86" and tools.detected_architecture() == "x86_64":
                     # Note: The packages with the "lib32-" prefix will only be
                     # available if the user has activate Arch's multilib
@@ -72,7 +72,7 @@ class GlfwConan(ConanFile):
                     arch_suffix = 'lib32-'
                 else:
                     arch_suffix = ''
-                installer = SystemPackageTool()
+                installer = tools.SystemPackageTool()
                 installer.install("%s%s" % (arch_suffix, "libx11"))
                 installer.install("%s%s" % (arch_suffix, "libxrandr"))
                 installer.install("%s%s" % (arch_suffix, "libxinerama"))
@@ -105,6 +105,9 @@ class GlfwConan(ConanFile):
         return cmake
 
     def build(self):
+        tools.replace_in_file(os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+                              "install(TARGETS glfw EXPORT glfwTargets DESTINATION lib${LIB_SUFFIX})",
+                              "install(TARGETS glfw EXPORT glfwTargets DESTINATION lib${LIB_SUFFIX} RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)")
         cmake = self._configure_cmake()
         cmake.build()
 
