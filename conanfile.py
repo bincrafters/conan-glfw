@@ -8,7 +8,6 @@ from conans import ConanFile, CMake, tools
 class GlfwConan(ConanFile):
     name = "glfw"
     version = "3.2.1.20180327"
-    revision = "0a3c4f5d80b041ee1a12c8da3503653d98bd1a15"
     description = "The GLFW library - Builds on Windows, Linux and Macos/OSX"
     settings = "os", "arch", "build_type", "compiler"
     options = {"shared": [True, False], "fPIC": [True, False]}
@@ -93,9 +92,10 @@ class GlfwConan(ConanFile):
         del self.settings.compiler.libcxx
 
     def source(self):
-        sha256 = "0c623f65a129c424d0fa45591694fde3719ad4a0955d4835182fda71b255446f"
-        tools.get("{}/archive/{}.zip".format(self.homepage, self.version), sha256=sha256)
-        extracted_folder = self.name + '-' + self.version
+        sha256 = "6a49afdeb0ae8f0d6b198f321422d2c75676f7efcff28ea9b8e45ac5c68c6d4a"
+        revision = "0a3c4f5d80b041ee1a12c8da3503653d98bd1a15"
+        tools.get("{}/archive/{}.zip".format(self.homepage, revision), sha256=sha256)
+        extracted_folder = self.name + '-' + revision
         os.rename(extracted_folder, self._source_subfolder)
 
     def _configure_cmake(self):
@@ -107,9 +107,6 @@ class GlfwConan(ConanFile):
         return cmake
 
     def build(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
-                              "install(TARGETS glfw EXPORT glfwTargets DESTINATION lib${LIB_SUFFIX})",
-                              "install(TARGETS glfw EXPORT glfwTargets DESTINATION lib${LIB_SUFFIX} RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)")
         cmake = self._configure_cmake()
         cmake.build()
 
