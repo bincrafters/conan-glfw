@@ -1,7 +1,8 @@
-from conans import ConanFile, CMake, tools
-from conans.tools import download, unzip, os_info, SystemPackageTool
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import os
 import glob
+from conans import ConanFile, CMake, tools
 
 
 class GlfwConan(ConanFile):
@@ -9,20 +10,24 @@ class GlfwConan(ConanFile):
     version = "3.2.1.20180327"
     revision = "0a3c4f5d80b041ee1a12c8da3503653d98bd1a15"
     description = "The GLFW library - Builds on Windows, Linux and Macos/OSX"
-    sources_folder = "sources"
-    generators = "cmake"
     settings = "os", "arch", "build_type", "compiler"
-    options = {"shared": [True, False]}
-    default_options = "shared=False"
+    options = {"shared": [True, False], "fPIC": [True, False]}
+    default_options = {'shared': False, "fPIC": True}
+    license = "Zlib"
     url = "https://github.com/bincrafters/conan-glfw"
-    license = "https://github.com/glfw/glfw/blob/master/LICENSE.md"
-    exports = "FindGLFW.cmake"
+    homepage = "https://github.com/glfw/glfw"
+    author = "Bincrafters <bincrafters@gmail.com>"
+    topics = ("conan", "gflw", "opengl", "vulcan", "opengl-es")
+    exports = "LICENSE"
     exports_sources = "CMakeLists.txt"
+    generators = "cmake"
+    _source_subfolder = "source_subfolder"
+    _build_subfolder = "build_subfolder"
 
     def system_requirements(self):
-        if os_info.is_linux:
-            if os_info.with_apt:
-                installer = SystemPackageTool()
+        if tools.os_info.is_linux:
+            if tools.os_info.with_apt:
+                installer = tools.SystemPackageTool()
                 if self.settings.arch == "x86" and tools.detected_architecture() == "x86_64":
                     arch_suffix = ':i386'
                     installer.install("g++-multilib")
@@ -36,8 +41,8 @@ class GlfwConan(ConanFile):
                 installer.install("%s%s" % ("libxinerama-dev", arch_suffix))
                 installer.install("%s%s" % ("libxcursor-dev", arch_suffix))
                 installer.install("%s%s" % ("libxi-dev", arch_suffix))
-            elif os_info.with_yum:
-                installer = SystemPackageTool()
+            elif tools.os_info.with_yum:
+                installer = tools.SystemPackageTool()
                 if self.settings.arch == "x86" and tools.detected_architecture() == "x86_64":
                     arch_suffix = '.i686'
                     installer.install("glibmm24.i686")
@@ -60,69 +65,70 @@ class GlfwConan(ConanFile):
                 installer.install("%s%s" % ("libXinerama-devel", arch_suffix))
                 installer.install("%s%s" % ("libXcursor-devel", arch_suffix))
                 installer.install("%s%s" % ("libXi-devel", arch_suffix))
+            elif tools.os_info.with_pacman:
+                if self.settings.arch == "x86" and tools.detected_architecture() == "x86_64":
+                    # Note: The packages with the "lib32-" prefix will only be
+                    # available if the user has activate Arch's multilib
+                    # repository, See
+                    # https://wiki.archlinux.org/index.php/official_repositories#multilib
+                    arch_suffix = 'lib32-'
+                else:
+                    arch_suffix = ''
+                installer = tools.SystemPackageTool()
+                installer.install("%s%s" % (arch_suffix, "libx11"))
+                installer.install("%s%s" % (arch_suffix, "libxrandr"))
+                installer.install("%s%s" % (arch_suffix, "libxinerama"))
+                installer.install("%s%s" % (arch_suffix, "libxcursor"))
+                installer.install("%s%s" % (arch_suffix, "libxi"))
+                installer.install("%s%s" % (arch_suffix, "libglvnd"))
+
             else:
                 self.output.warn("Could not determine package manager, skipping Linux system requirements installation.")
-   
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
     def configure(self):
         del self.settings.compiler.libcxx
 
     def source(self):
-        download("https://github.com/glfw/glfw/archive/%s.zip" % self.revision, "%s.zip" % self.sources_folder)
-        unzip("%s.zip" % self.sources_folder)
-        os.unlink("%s.zip" % self.sources_folder)
-        os.rename("glfw-%s" % self.revision, self.sources_folder)
+        sha256 = "0c623f65a129c424d0fa45591694fde3719ad4a0955d4835182fda71b255446f"
+        tools.get("{}/archive/{}.zip".format(self.homepage, self.version), sha256=sha256)
+        extracted_folder = self.name + '-' + self.version
+        os.rename(extracted_folder, self._source_subfolder)
 
-    def build(self):
+    def _configure_cmake(self):
         cmake = CMake(self)
-        cmake.definitions["BUILD_SHARED_LIBS"] = self.options.shared
         cmake.definitions["GLFW_BUILD_EXAMPLES"] = False
         cmake.definitions["GLFW_BUILD_TESTS"] = False
         cmake.definitions["GLFW_BUILD_DOCS"] = False
-        cmake.configure()
+        cmake.configure(build_dir=self._build_subfolder)
+        return cmake
+
+    def build(self):
+        tools.replace_in_file(os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
+                              "install(TARGETS glfw EXPORT glfwTargets DESTINATION lib${LIB_SUFFIX})",
+                              "install(TARGETS glfw EXPORT glfwTargets DESTINATION lib${LIB_SUFFIX} RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)")
+        cmake = self._configure_cmake()
         cmake.build()
 
         if self.settings.os == "Macos" and self.options.shared:
-            with tools.chdir(os.path.join('sources', 'src')):
+            with tools.chdir(os.path.join(self._source_subfolder, 'src')):
                 for filename in glob.glob('*.dylib'):
                     self.run('install_name_tool -id {filename} {filename}'.format(filename=filename))
 
     def package(self):
-        self.copy("FindGLFW.cmake", ".", ".")
-        self.copy("%s/copying*" % self.sources_folder, dst="licenses",  ignore_case=True, keep_path=False)
-        
-        self.copy(pattern="*.h", dst="include", src="%s/include" % self.sources_folder, keep_path=True)
-
-        if self.settings.compiler == "Visual Studio":
-            self.copy(pattern="*.lib", dst="lib", keep_path=False)
-            self.copy(pattern="*.pdb", dst="bin", keep_path=False)
-            if self.options.shared:
-                self.copy(pattern="*.dll", dst="bin", keep_path=False)
-        else:
-            if self.options.shared:
-                if self.settings.os == "Linux":
-                    self.copy(pattern="*.so*", dst="lib", keep_path=False)
-                elif self.settings.os == "Macos":
-                    self.copy(pattern="*.dylib", dst="lib", keep_path=False)
-                elif self.settings.os == "Windows":
-                    self.copy(pattern="*dll.a", dst="lib", keep_path=False)
-                    self.copy(pattern="*.dll", dst="bin", keep_path=False)
-            else:
-                self.copy(pattern="*.a", dst="lib", keep_path=False)
+        self.copy("COPYING.txt", dst="licenses", src=self._source_subfolder)
+        self.copy(pattern="*.pdb", dst="bin", keep_path=False)
+        cmake = self._configure_cmake()
+        cmake.install()
 
     def package_info(self):
-        if self.settings.os == "Windows":
+        self.cpp_info.libs = tools.collect_libs(self)
+        if self.settings.os == "Linux":
+            self.cpp_info.libs.extend(['Xrandr', 'Xrender', 'Xi', 'Xinerama', 'Xcursor', 'GL', 'm', 'dl', 'drm', 'Xdamage', 'X11-xcb', 'xcb-glx', 'xcb-dri2', 'xcb-dri3', 'xcb-present', 'xcb-sync', 'Xxf86vm', 'Xfixes', 'Xext', 'X11', 'pthread', 'xcb', 'Xau'])
             if self.options.shared:
-                self.cpp_info.libs = ['glfw3dll']
-            else:
-                self.cpp_info.libs = ['glfw3']
-        else:
-            if self.options.shared:
-                self.cpp_info.libs = ['glfw']
-                if self.settings.os == "Linux":
-                    self.cpp_info.exelinkflags.append("-lrt -lm -ldl")
-            else:
-                self.cpp_info.libs = ['glfw3']
-                if self.settings.os == "Macos":
-                    self.cpp_info.exelinkflags.append("-framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo")
-                if self.settings.os == "Linux":
-                    self.cpp_info.libs.append("Xrandr Xrender Xi Xinerama Xcursor GL m dl drm Xdamage X11-xcb xcb-glx xcb-dri2 xcb-dri3 xcb-present xcb-sync Xxf86vm Xfixes Xext X11 pthread xcb Xau")
+                self.cpp_info.exelinkflags.append("-lrt -lm -ldl")
+        elif self.settings.os == "Macos":
+            self.cpp_info.exelinkflags.append("-framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo")
