@@ -7,7 +7,7 @@ from conans import ConanFile, CMake, tools
 
 class GlfwConan(ConanFile):
     name = "glfw"
-    version = "3.2.1"
+    version = "3.3"
     description = "The GLFW library - Builds on Windows, Linux and Macos/OSX"
     settings = "os", "arch", "build_type", "compiler"
     options = {"shared": [True, False], "fPIC": [True, False]}
@@ -91,7 +91,7 @@ class GlfwConan(ConanFile):
         del self.settings.compiler.libcxx
 
     def source(self):
-        sha256 = "0c623f65a129c424d0fa45591694fde3719ad4a0955d4835182fda71b255446f"
+        sha256 = "1092f6815d1f6d1f67479d2dad6057172b471122d911e7a7ea2be120956ffaa4"
         tools.get("{}/archive/{}.zip".format(self.homepage, self.version), sha256=sha256)
         extracted_folder = self.name + '-' + self.version
         os.rename(extracted_folder, self._source_subfolder)
@@ -105,9 +105,6 @@ class GlfwConan(ConanFile):
         return cmake
 
     def build(self):
-        tools.replace_in_file(os.path.join(self._source_subfolder, "src", "CMakeLists.txt"),
-                              "install(TARGETS glfw EXPORT glfwTargets DESTINATION lib${LIB_SUFFIX})",
-                              "install(TARGETS glfw EXPORT glfwTargets DESTINATION lib${LIB_SUFFIX} RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)")
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -117,7 +114,7 @@ class GlfwConan(ConanFile):
                     self.run('install_name_tool -id {filename} {filename}'.format(filename=filename))
 
     def package(self):
-        self.copy("COPYING.txt", dst="licenses", src=self._source_subfolder)
+        self.copy("LICENSE.md", dst="licenses", src=self._source_subfolder)
         self.copy(pattern="*.pdb", dst="bin", keep_path=False)
         cmake = self._configure_cmake()
         cmake.install()
