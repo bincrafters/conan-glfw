@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import os
 import glob
 from conans import ConanFile, CMake, tools
@@ -15,7 +13,6 @@ class GlfwConan(ConanFile):
     license = "Zlib"
     url = "https://github.com/bincrafters/conan-glfw"
     homepage = "https://github.com/glfw/glfw"
-    author = "Bincrafters <bincrafters@gmail.com>"
     topics = ("conan", "gflw", "opengl", "vulcan", "opengl-es")
     exports = "LICENSE"
     exports_sources = "CMakeLists.txt"
@@ -89,6 +86,7 @@ class GlfwConan(ConanFile):
 
     def configure(self):
         del self.settings.compiler.libcxx
+        del self.settings.compiler.cppstd
 
     def source(self):
         sha256 = "1092f6815d1f6d1f67479d2dad6057172b471122d911e7a7ea2be120956ffaa4"
