@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import os
 import glob
 from conans import ConanFile, CMake, tools
@@ -15,7 +13,6 @@ class GlfwConan(ConanFile):
     license = "Zlib"
     url = "https://github.com/bincrafters/conan-glfw"
     homepage = "https://github.com/glfw/glfw"
-    author = "Bincrafters <bincrafters@gmail.com>"
     topics = ("conan", "gflw", "opengl", "vulcan", "opengl-es")
     exports = "LICENSE"
     exports_sources = "CMakeLists.txt"
@@ -23,65 +20,14 @@ class GlfwConan(ConanFile):
     _source_subfolder = "source_subfolder"
     _build_subfolder = "build_subfolder"
 
-    def system_requirements(self):
-        if tools.os_info.is_linux:
-            if tools.os_info.with_apt:
-                installer = tools.SystemPackageTool()
-                if self.settings.arch == "x86" and tools.detected_architecture() == "x86_64":
-                    arch_suffix = ':i386'
-                    installer.install("g++-multilib")
-                else:
-                    arch_suffix = ''
-                installer.install("%s%s" % ("libglu1-mesa-dev", arch_suffix))
-                installer.install("xorg-dev")
-                installer.install("%s%s" % ("libx11-dev", arch_suffix))
-                installer.install("%s%s" % ("libxrandr-dev", arch_suffix))
-                installer.install("%s%s" % ("libxinerama-dev", arch_suffix))
-                installer.install("%s%s" % ("libxcursor-dev", arch_suffix))
-                installer.install("%s%s" % ("libxi-dev", arch_suffix))
-            elif tools.os_info.with_yum:
-                installer = tools.SystemPackageTool()
-                if self.settings.arch == "x86" and tools.detected_architecture() == "x86_64":
-                    arch_suffix = '.i686'
-                    installer.install("glibmm24.i686")
-                    installer.install("glibc-devel.i686")
-                    installer.install("libXrender-devel.i686")
-                    installer.install("libdrm-devel.i686")
-                    installer.install("libXdamage-devel.i686")
-                    installer.install("libxcb-devel.i686")
-                    installer.install("libX11-devel.i686")
-                    installer.install("libXxf86vm-devel.i686")
-                    installer.install("libXfixes-devel.i686")
-                    installer.install("libXext-devel.i686")
-                    installer.install("mesa-libGL-devel.i686")
-                    installer.install("libXau-devel.i686")
-                else:
-                    arch_suffix = ''
-                installer.install("%s%s" % ("mesa-libGLU-devel", arch_suffix))
-                installer.install("%s%s" % ("xorg-x11-server-devel", arch_suffix))
-                installer.install("%s%s" % ("libXrandr-devel", arch_suffix))
-                installer.install("%s%s" % ("libXinerama-devel", arch_suffix))
-                installer.install("%s%s" % ("libXcursor-devel", arch_suffix))
-                installer.install("%s%s" % ("libXi-devel", arch_suffix))
-            elif tools.os_info.with_pacman:
-                if self.settings.arch == "x86" and tools.detected_architecture() == "x86_64":
-                    # Note: The packages with the "lib32-" prefix will only be
-                    # available if the user has activate Arch's multilib
-                    # repository, See
-                    # https://wiki.archlinux.org/index.php/official_repositories#multilib
-                    arch_suffix = 'lib32-'
-                else:
-                    arch_suffix = ''
-                installer = tools.SystemPackageTool()
-                installer.install("%s%s" % (arch_suffix, "libx11"))
-                installer.install("%s%s" % (arch_suffix, "libxrandr"))
-                installer.install("%s%s" % (arch_suffix, "libxinerama"))
-                installer.install("%s%s" % (arch_suffix, "libxcursor"))
-                installer.install("%s%s" % (arch_suffix, "libxi"))
-                installer.install("%s%s" % (arch_suffix, "libglvnd"))
-
-            else:
-                self.output.warn("Could not determine package manager, skipping Linux system requirements installation.")
+    def requirements(self):
+        if self.settings.os == 'Linux':
+            self.requires("libx11/1.6.8@bincrafters/stable")
+            self.requires("libxrandr/1.5.2@bincrafters/stable")
+            self.requires("libxinerama/1.1.4@bincrafters/stable")
+            self.requires("libxcursor/1.2.0@bincrafters/stable")
+            self.requires("libxi/1.7.10@bincrafters/stable")
+            self.requires("mesa/19.3.1@bincrafters/stable")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -89,6 +35,7 @@ class GlfwConan(ConanFile):
 
     def configure(self):
         del self.settings.compiler.libcxx
+        del self.settings.compiler.cppstd
 
     def source(self):
         sha256 = "1092f6815d1f6d1f67479d2dad6057172b471122d911e7a7ea2be120956ffaa4"
