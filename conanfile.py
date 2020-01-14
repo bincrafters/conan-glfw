@@ -5,7 +5,7 @@ from conans import ConanFile, CMake, tools
 
 class GlfwConan(ConanFile):
     name = "glfw"
-    version = "3.3"
+    version = "3.3.1"
     description = "The GLFW library - Builds on Windows, Linux and Macos/OSX"
     settings = "os", "arch", "build_type", "compiler"
     options = {"shared": [True, False], "fPIC": [True, False]}
@@ -38,7 +38,7 @@ class GlfwConan(ConanFile):
         del self.settings.compiler.cppstd
 
     def source(self):
-        sha256 = "1092f6815d1f6d1f67479d2dad6057172b471122d911e7a7ea2be120956ffaa4"
+        sha256 = "eb536768a3db392fa0675bb05552b28118af76382964cdedaa98cd1f526eef84"
         tools.get("{}/archive/{}.zip".format(self.homepage, self.version), sha256=sha256)
         extracted_folder = self.name + '-' + self.version
         os.rename(extracted_folder, self._source_subfolder)
