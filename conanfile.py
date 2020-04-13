@@ -27,7 +27,7 @@ class GlfwConan(ConanFile):
             self.requires("libxinerama/1.1.4@bincrafters/stable")
             self.requires("libxcursor/1.2.0@bincrafters/stable")
             self.requires("libxi/1.7.10@bincrafters/stable")
-            self.requires("mesa/19.3.1@bincrafters/stable")
+            self.requires("opengl/virtual@bincrafters/stable")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -73,4 +73,4 @@ class GlfwConan(ConanFile):
             if self.options.shared:
                 self.cpp_info.exelinkflags.append("-lrt -lm -ldl")
         elif self.settings.os == "Macos":
-            self.cpp_info.frameworks.extend(["OpenGL", "Cocoa", "IOKit", "CoreVideo"])
+            self.cpp_info.frameworks.extend(["Cocoa", "IOKit", "CoreVideo"])
