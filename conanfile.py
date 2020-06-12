@@ -27,7 +27,7 @@ class GlfwConan(ConanFile):
             self.requires("libxinerama/1.1.4@bincrafters/stable")
             self.requires("libxcursor/1.2.0@bincrafters/stable")
             self.requires("libxi/1.7.10@bincrafters/stable")
-            self.requires("opengl/virtual@bincrafters/stable")
+            self.requires("opengl/system")
 
     def config_options(self):
         if self.settings.os == "Windows":
